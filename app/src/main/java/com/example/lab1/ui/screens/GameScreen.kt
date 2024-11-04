@@ -43,11 +43,7 @@ fun GameScreen(
             )
 
             // Anropar rutnätsfunktionen för att visa en 3x3 ruta
-            NBackGrid(
-                onCellClick = { row, col ->
-                    //TODO: Hanterar cellklick genom att anropa GameViewModel-logik eller lagra vald position
-                }
-            )
+            NBackGrid()
 
             // Rad för knappar
             Row(
@@ -86,9 +82,7 @@ fun GameScreen(
 }
 
 @Composable
-fun NBackGrid(
-    onCellClick: (Int, Int) -> Unit
-) {
+fun NBackGrid() {
     Column(
         modifier = Modifier
             .size(300.dp)
@@ -101,7 +95,7 @@ fun NBackGrid(
                 horizontalArrangement = Arrangement.spacedBy(8.dp) // Mellanrum mellan kolumner
             ) {
                 for (col in 0 until 3) {
-                    GridCell(row, col, onCellClick)
+                    GridCell(row, col) // Anrop till GridCell
                 }
             }
         }
@@ -111,8 +105,7 @@ fun NBackGrid(
 @Composable
 fun GridCell(
     row: Int,
-    col: Int,
-    onCellClick: (Int, Int) -> Unit
+    col: Int
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -120,7 +113,6 @@ fun GridCell(
             .size(80.dp) // Storlek för varje cell
             .background(Color.White)
             .padding(4.dp)
-            .clickable { onCellClick(row, col) } // Hantera klick på cellen
     ) {
         // Ingen Text här, så cellerna förblir tomma
     }
