@@ -47,7 +47,7 @@ interface GameViewModel {
 }
 
 class GameVM(
-    private val userPreferencesRepository: UserPreferencesRepository
+    val userPreferencesRepository: UserPreferencesRepository
 ): GameViewModel, ViewModel() {
     private val _gameState = MutableStateFlow(GameState())
     override val gameState: StateFlow<GameState>
@@ -74,10 +74,10 @@ class GameVM(
         // update the gametype in the gamestate
         _gameState.value = _gameState.value.copy(gameType = gameType)
     }
-    fun setCurrentGameState(currentGameState: CurrentGameState) {
+    /*fun setCurrentGameState(currentGameState: CurrentGameState) {
         // uppdatera currentGameState i GameState
         _gameState.value = _gameState.value.copy(currentGameState = currentGameState)
-    }
+    }*/
 
     override fun startGame() {
         job?.cancel()  // Cancel any existing game loop
@@ -95,7 +95,7 @@ class GameVM(
             // Todo: update the highscore
         }
 
-        setCurrentGameState(CurrentGameState.InProgress)
+        //setCurrentGameState(CurrentGameState.InProgress)
     }
 
     override fun checkMatch() {
@@ -150,17 +150,17 @@ enum class GameType{
     AudioVisual
 }
 
-enum class CurrentGameState{
+/*enum class CurrentGameState{
     HomeSite,
     InProgress,
     GameOver
-}
+}*/
 
 data class GameState(
     // You can use this state to push values from the VM to your UI.
     val gameType: GameType = GameType.Visual,  // Type of the game
     val eventValue: Int = -1,  // The value of the array string
-    val currentGameState: CurrentGameState = CurrentGameState.HomeSite
+    //val currentGameState: CurrentGameState = CurrentGameState.HomeSite
 )
 
 class FakeVM: GameViewModel{

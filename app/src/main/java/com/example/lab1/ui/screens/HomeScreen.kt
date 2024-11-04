@@ -29,9 +29,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.lab1.R
+import com.example.lab1.Routes
 import kotlinx.coroutines.launch
-import mobappdev.example.nback_cimpl.ui.viewmodels.CurrentGameState
 import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
@@ -51,7 +53,8 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 
 @Composable
 fun HomeScreen(
-    vm: GameViewModel
+    vm: GameViewModel,
+    navController : NavController
 ) {
     val highscore by vm.highscore.collectAsState()  // Highscore is its own StateFlow
     val gameState by vm.gameState.collectAsState()
@@ -89,32 +92,31 @@ fun HomeScreen(
                             textAlign = TextAlign.Center
                         )
                     }
-                    if (gameState.currentGameState == CurrentGameState.HomeSite){
-                        Button(
-                            modifier = Modifier.padding(bottom = 16.dp),
-                            onClick = {
-                                vm.setGameType(GameType.Audio)
-                                vm.startGame()
-                            }) {
-                            Text(text = "Test Audio")
-                        }
-                        Button(
-                            modifier = Modifier.padding(bottom = 16.dp),
-                            onClick = {
-                                vm.setGameType(GameType.Visual)
-                                vm.startGame()
-                            }) {
-                            Text(text = "Test Visual")
-                        }
-                        Button(
-                            onClick = {
-                                vm.setGameType(GameType.AudioVisual)
-                                vm.startGame()
-                            }) {
-                            Text(text = "Test both")
-                        }
+                    Button(
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        onClick = {
+                            vm.setGameType(GameType.Audio)
+                            vm.startGame()
+                        }) {
+                        Text(text = "Test Audio")
                     }
-                    Text(text = "Goga?")
+                    Button(
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        onClick = {
+                            vm.setGameType(GameType.Visual)
+                            vm.startGame()
+                            navController.navigate(Routes.GAME)
+                        }) {
+                        Text(text = "Test Visual")
+                    }
+                    Button(
+                        onClick = {
+                            vm.setGameType(GameType.AudioVisual)
+                            vm.startGame()
+                        }) {
+                        Text(text = "Test both")
+                    }
+                    Text(text = "Wove you zola <3")
                 }
             }
             Text(
@@ -122,7 +124,7 @@ fun HomeScreen(
                 text = "Hello there! :3",
                 style = MaterialTheme.typography.displaySmall
             )
-            Row(
+            /*Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
@@ -163,7 +165,7 @@ fun HomeScreen(
                             .aspectRatio(3f / 2f)
                     )
                 }
-            }
+            }*/
         }
     }
 }
@@ -171,8 +173,8 @@ fun HomeScreen(
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    // Since I am injecting a VM into my homescreen that depends on Application context, the preview doesn't work.
-    Surface(){
-        HomeScreen(FakeVM())
+    val fakeNavController = rememberNavController()  // Create a mock NavController
+    Surface {
+        HomeScreen(FakeVM(), navController = fakeNavController)  // Pass FakeVM and mock NavController
     }
 }

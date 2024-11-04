@@ -91,16 +91,16 @@ fun NBackGrid(
 ) {
     Column(
         modifier = Modifier
-            .size(300.dp) // Storlek på 3x3-rutan
+            .size(300.dp)
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp) // Mellanrum mellan varje rad
+        verticalArrangement = Arrangement.spacedBy(8.dp) // Mellanrum mellan rader
     ) {
-        for (row in 0 until 3) { // Ytter loop för rader
+        for (row in 0 until 3) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.spacedBy(8.dp) // Mellanrum mellan kolumner
             ) {
-                for (col in 0 until 3) { // Inre loop för kolumner
+                for (col in 0 until 3) {
                     GridCell(row, col, onCellClick)
                 }
             }

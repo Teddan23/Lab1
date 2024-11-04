@@ -11,6 +11,7 @@ import com.example.lab1.ui.theme.Lab1Theme
 import mobappdev.example.nback_cimpl.ui.screens.HomeScreen
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameVM
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,8 +28,11 @@ class MainActivity : ComponentActivity() {
                         factory = GameVM.Factory
                     )
 
-                    // Instantiate the homescreen
-                    HomeScreen(vm = gameViewModel)
+                    // Create a NavController
+                    val navController = rememberNavController()
+
+                    // Define the navigation graph
+                    NavGraph(navController, gameViewModel.userPreferencesRepository)
                 }
             }
         }
