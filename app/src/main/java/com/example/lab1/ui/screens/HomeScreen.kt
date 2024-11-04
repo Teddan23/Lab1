@@ -91,7 +91,7 @@ fun HomeScreen(
                     }
                     if (gameState.currentGameState == CurrentGameState.HomeSite){
                         Button(
-                            //modifier = Modifier.padding(bottom = 16.dp),
+                            modifier = Modifier.padding(bottom = 16.dp),
                             onClick = {
                                 vm.setGameType(GameType.Audio)
                                 vm.startGame()
@@ -99,7 +99,7 @@ fun HomeScreen(
                             Text(text = "Test Audio")
                         }
                         Button(
-                            //modifier = Modifier.padding(bottom = 16.dp),
+                            modifier = Modifier.padding(bottom = 16.dp),
                             onClick = {
                                 vm.setGameType(GameType.Visual)
                                 vm.startGame()
@@ -114,7 +114,7 @@ fun HomeScreen(
                             Text(text = "Test both")
                         }
                     }
-                    Text(text = "Wut u say?")
+                    Text(text = "Goga?")
                 }
             }
             Text(
