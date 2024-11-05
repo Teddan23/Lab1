@@ -61,6 +61,7 @@ fun HomeScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) }
     ) {
@@ -104,19 +105,20 @@ fun HomeScreen(
                         modifier = Modifier.padding(bottom = 16.dp),
                         onClick = {
                             vm.setGameType(GameType.Visual)
-                            vm.startGame()
+                            //vm.startGame()
                             navController.navigate(Routes.GAME)
                         }) {
                         Text(text = "Test Visual")
                     }
                     Button(
                         onClick = {
-                            vm.setGameType(GameType.AudioVisual)
                             vm.startGame()
+                            vm.setGameType(GameType.AudioVisual)
+
                         }) {
                         Text(text = "Test both")
                     }
-                    Text(text = "Wove you zola <3")
+                    Text(text = "I wike candy!")
                 }
             }
             Text(

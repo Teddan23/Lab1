@@ -74,17 +74,13 @@ class GameVM(
         // update the gametype in the gamestate
         _gameState.value = _gameState.value.copy(gameType = gameType)
     }
-    /*fun setCurrentGameState(currentGameState: CurrentGameState) {
-        // uppdatera currentGameState i GameState
-        _gameState.value = _gameState.value.copy(currentGameState = currentGameState)
-    }*/
 
     override fun startGame() {
         job?.cancel()  // Cancel any existing game loop
 
         // Get the events from our C-model (returns IntArray, so we need to convert to Array<Int>)
         events = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
-        Log.d("GameVM", "The following sequence was generated: ${events.contentToString()}")
+        //Log.d("GameVM", "The following sequence was generated: ${events.contentToString()}")
 
         job = viewModelScope.launch {
             when (gameState.value.gameType) {
@@ -110,7 +106,9 @@ class GameVM(
 
     private suspend fun runVisualGame(events: Array<Int>){
         // Todo: Replace this code for actual game code
+        //delay(eventInterval)
         for (value in events) {
+            //Log.d("GameVM", "Setting eventValue to $value")  // Lägg till denna logg
             _gameState.value = _gameState.value.copy(eventValue = value)
             delay(eventInterval)
         }
@@ -149,12 +147,6 @@ enum class GameType{
     Visual,
     AudioVisual
 }
-
-/*enum class CurrentGameState{
-    HomeSite,
-    InProgress,
-    GameOver
-}*/
 
 data class GameState(
     // You can use this state to push values from the VM to your UI.

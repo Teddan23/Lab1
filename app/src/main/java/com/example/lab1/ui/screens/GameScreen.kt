@@ -8,44 +8,63 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.lab1.R
 import kotlinx.coroutines.launch
 import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
+import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 
 @Composable
 fun GameScreen(
     vm: GameViewModel
 ) {
+    // Observera gameState som tidigare
+    val gameState by vm.gameState.collectAsState()
+
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Yellow) // Bakgrundsfärg för skärmen
+            .background(Color.Yellow)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp), // Padding runt hela kolumnen
-            verticalArrangement = Arrangement.Center, // Centrerar elementen vertikalt
-            horizontalAlignment = Alignment.CenterHorizontally // Centrerar elementen horisontellt
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Rad för att visa nuvarande poäng
             Text(
-                text = "Current points: 0", // Du kan uppdatera poängen senare
+                text = "Current points: 0", // Uppdatera denna om du har en variabel för poäng
                 style = MaterialTheme.typography.headlineMedium,
                 color = Color.Black,
-                modifier = Modifier.padding(bottom = 16.dp) // Mellanrum under texten
+                modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // Anropar rutnätsfunktionen för att visa en 3x3 ruta
-            NBackGrid()
+            if(gameState.eventValue == -1){
+                vm.startGame()
+            }
 
-            // Rad för knappar
+
+            if (gameState.eventValue != -1) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "Current eventValue is: ${gameState.eventValue}",
+                    textAlign = TextAlign.Center
+                )
+                NBackGrid(eventValue = gameState.eventValue)
+            }
+
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -53,21 +72,18 @@ fun GameScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(onClick = {
-                    // Todo: change this button behaviour
-                }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.sound_on),
-                        contentDescription = "Sound",
-                        modifier = Modifier
-                            .height(48.dp)
-                            .aspectRatio(3f / 2f)
-                    )
+                if (gameState.gameType != GameType.Visual) {
+                    Button(onClick = { /* Ändra beteendet för knappen */ }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.sound_on),
+                            contentDescription = "Sound",
+                            modifier = Modifier
+                                .height(48.dp)
+                                .aspectRatio(3f / 2f)
+                        )
+                    }
                 }
-                Button(
-                    onClick = {
-                        // Todo: change this button behaviour
-                    }) {
+                Button(onClick = { /* Ändra beteendet för knappen */ }) {
                     Icon(
                         painter = painterResource(id = R.drawable.visual),
                         contentDescription = "Visual",
@@ -82,20 +98,23 @@ fun GameScreen(
 }
 
 @Composable
-fun NBackGrid() {
+fun NBackGrid(eventValue: Int) {
     Column(
         modifier = Modifier
             .size(300.dp)
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp) // Mellanrum mellan rader
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        var id = 0
         for (row in 0 until 3) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp) // Mellanrum mellan kolumner
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 for (col in 0 until 3) {
-                    GridCell(row, col) // Anrop till GridCell
+                    // Skicka vidare det aktuella eventValue till varje GridCell
+                    GridCell(id = id, eventValue = eventValue)
+                    id += 1
                 }
             }
         }
@@ -104,17 +123,21 @@ fun NBackGrid() {
 
 @Composable
 fun GridCell(
-    row: Int,
-    col: Int
+    id: Int,
+    eventValue: Int
 ) {
+    // Debug-utskrift för att bekräfta när GridCell uppdateras
+    println("GridCell ID: $id, EventValue: $eventValue")
+
+    // Ändra bakgrundsfärgen dynamiskt baserat på eventValue
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .size(80.dp) // Storlek för varje cell
-            .background(Color.White)
+            .size(80.dp)
+            .background(if (id == eventValue) Color.Green else Color.White)
             .padding(4.dp)
     ) {
-        // Ingen Text här, så cellerna förblir tomma
+        // Cellinnehåll kan vara tomt eller lägga till mer UI om det behövs
     }
 }
 
