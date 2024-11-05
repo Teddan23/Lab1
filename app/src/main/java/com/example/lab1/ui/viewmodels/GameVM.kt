@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.lab1.GameButtonType
 import com.example.lab1.GameApplication
 import com.example.lab1.NBackHelper
 import kotlinx.coroutines.Job
@@ -43,7 +44,7 @@ interface GameViewModel {
     fun setGameType(gameType: GameType)
     fun startGame()
 
-    fun checkMatch()
+    fun checkMatch(gameButtonType: GameButtonType)
 }
 
 class GameVM(
@@ -68,7 +69,10 @@ class GameVM(
     private val eventInterval: Long = 2000L  // 2000 ms (2s)
 
     private val nBackHelper = NBackHelper()  // Helper that generate the event array
-    private var events = emptyArray<Int>()  // Array with all events
+    private var VisualArray = emptyArray<Int>()  // Array with all events
+    private var AudioArray = emptyArray<Int>()
+    private var VisualArrayPosition = -1
+    private var AudioArrayPosition = -1
 
     override fun setGameType(gameType: GameType) {
         // update the gametype in the gamestate
@@ -78,15 +82,35 @@ class GameVM(
     override fun startGame() {
         job?.cancel()  // Cancel any existing game loop
 
+
         // Get the events from our C-model (returns IntArray, so we need to convert to Array<Int>)
-        events = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
+        when(gameState.value.gameType){
+            GameType.Audio -> {
+                AudioArrayPosition = -1
+                AudioArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()
+            }
+            GameType.Visual -> {
+                VisualArrayPosition = -1
+                VisualArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()
+            }
+            GameType.AudioVisual -> {
+                VisualArrayPosition = -1
+                AudioArrayPosition = -1
+                VisualArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()
+                AudioArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()
+            }
+        }
+        //VisualArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
         //Log.d("GameVM", "The following sequence was generated: ${events.contentToString()}")
+        //AudioArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()
+
+
 
         job = viewModelScope.launch {
             when (gameState.value.gameType) {
                 GameType.Audio -> runAudioGame()
                 GameType.AudioVisual -> runAudioVisualGame()
-                GameType.Visual -> runVisualGame(events)
+                GameType.Visual -> runVisualGame(VisualArray)
             }
             // Todo: update the highscore
         }
@@ -94,11 +118,18 @@ class GameVM(
         //setCurrentGameState(CurrentGameState.InProgress)
     }
 
-    override fun checkMatch() {
+    override fun checkMatch(gameButtonType: GameButtonType) {
         /**
          * Todo: This function should check if there is a match when the user presses a match button
          * Make sure the user can only register a match once for each event.
          */
+
+        when(gameButtonType){
+            GameButtonType.Visual -> {
+                //VisualArray[]
+            }
+            GameButtonType.Audio -> TODO()
+        }
     }
     private fun runAudioGame() {
         // Todo: Make work for Basic grade
@@ -108,7 +139,8 @@ class GameVM(
         // Todo: Replace this code for actual game code
         //delay(eventInterval)
         for (value in events) {
-            //Log.d("GameVM", "Setting eventValue to $value")  // Lägg till denna logg
+            Log.d("GameVM", "Setting eventValue to $value")  // Lägg till denna logg
+            VisualArrayPosition++
             _gameState.value = _gameState.value.copy(eventValue = value)
             delay(eventInterval)
         }
@@ -171,6 +203,6 @@ class FakeVM: GameViewModel{
     override fun startGame() {
     }
 
-    override fun checkMatch() {
+    override fun checkMatch(gameButtonType: GameButtonType) {
     }
 }

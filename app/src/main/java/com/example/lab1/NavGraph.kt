@@ -10,13 +10,13 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameVM
 import mobappdev.example.nback_cimpl.data.UserPreferencesRepository
 
 @Composable
-fun NavGraph(navController: NavHostController, userPreferencesRepository: UserPreferencesRepository) {
+fun NavGraph(navController: NavHostController, userPreferencesRepository: UserPreferencesRepository, gameVm: GameVM) {
     NavHost(navController, startDestination = Routes.HOME) {
         composable(Routes.HOME) {
-            HomeScreen(vm = GameVM(userPreferencesRepository), navController = navController) // Pass UserPreferencesRepository to GameVM
+            HomeScreen(vm = gameVm, navController = navController) // Pass UserPreferencesRepository to GameVM
         }
         composable(Routes.GAME) {
-            GameScreen(vm = GameVM(userPreferencesRepository)) // Pass UserPreferencesRepository to GameVM
+            GameScreen(vm = gameVm, navController = navController) // Pass UserPreferencesRepository to GameVM
         }
     }
 }

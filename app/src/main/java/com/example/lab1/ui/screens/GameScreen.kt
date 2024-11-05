@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.collectAsState
@@ -17,14 +16,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.lab1.GameButtonType
 import com.example.lab1.R
-import kotlinx.coroutines.launch
 import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 
 @Composable
 fun GameScreen(
-    vm: GameViewModel
+    vm: GameViewModel,
+    navController: NavController
 ) {
     // Observera gameState som tidigare
     val gameState by vm.gameState.collectAsState()
@@ -50,9 +52,9 @@ fun GameScreen(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            if(gameState.eventValue == -1){
+            /*if(gameState.eventValue == -1){
                 vm.startGame()
-            }
+            }*/
 
 
             if (gameState.eventValue != -1) {
@@ -83,7 +85,7 @@ fun GameScreen(
                         )
                     }
                 }
-                Button(onClick = { /* Ändra beteendet för knappen */ }) {
+                Button(onClick = { vm.checkMatch(GameButtonType.Visual) }) {
                     Icon(
                         painter = painterResource(id = R.drawable.visual),
                         contentDescription = "Visual",
@@ -127,7 +129,7 @@ fun GridCell(
     eventValue: Int
 ) {
     // Debug-utskrift för att bekräfta när GridCell uppdateras
-    println("GridCell ID: $id, EventValue: $eventValue")
+    //println("GridCell ID: $id, EventValue: $eventValue")
 
     // Ändra bakgrundsfärgen dynamiskt baserat på eventValue
     Box(
@@ -144,7 +146,8 @@ fun GridCell(
 @Preview(showBackground = true)
 @Composable
 fun GameScreenPreview() {
+    val fakeNavController = rememberNavController()
     Surface {
-        GameScreen(FakeVM())
+        GameScreen(FakeVM(), navController = fakeNavController)
     }
 }

@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
 
                     // Define the navigation graph
-                    NavGraph(navController, gameViewModel.userPreferencesRepository)
+                    NavGraph(navController, gameViewModel.userPreferencesRepository, gameViewModel)
                 }
             }
         }
