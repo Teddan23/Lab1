@@ -1,6 +1,8 @@
 package mobappdev.example.nback_cimpl.ui.viewmodels
 
 import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -40,6 +42,8 @@ interface GameViewModel {
     val score: StateFlow<Int>
     val highscore: StateFlow<Int>
     val nBack: Int
+    val isVisualButtonClicked: State<Boolean>
+    val isAudioButtonClicked: State<Boolean>
 
     fun setGameType(gameType: GameType)
     fun startGame()
@@ -73,6 +77,10 @@ class GameVM(
     private var AudioArray = emptyArray<Int>()
     private var VisualArrayPosition = -1
     private var AudioArrayPosition = -1
+    private var _isVisualButtonClicked = mutableStateOf(true)
+    override val isVisualButtonClicked: State<Boolean> get() = _isVisualButtonClicked
+    private var _isAudioButtonClicked = mutableStateOf(true)
+    override val isAudioButtonClicked: State<Boolean> get() = _isVisualButtonClicked
 
     override fun setGameType(gameType: GameType) {
         // update the gametype in the gamestate
@@ -81,6 +89,8 @@ class GameVM(
 
     override fun startGame() {
         job?.cancel()  // Cancel any existing game loop
+
+        _score.value = 0
 
 
         // Get the events from our C-model (returns IntArray, so we need to convert to Array<Int>)
@@ -124,9 +134,19 @@ class GameVM(
          * Make sure the user can only register a match once for each event.
          */
 
+        Log.d("GameVM", "Current score: ${_score.value}")
+
         when(gameButtonType){
             GameButtonType.Visual -> {
-                //VisualArray[]
+                //Log.d("GameVM", "VisualArrayPosition is: ${VisualArrayPosition}")
+                if(VisualArrayPosition - nBack >= 0){
+                    _isVisualButtonClicked.value = true
+                    //Log.d("GameVM", "This button press is allowed")
+                    if(VisualArray[VisualArrayPosition - nBack] == this.gameState.value.eventValue){
+                        //Log.d("GameVM", "Adding to score!")
+                        _score.value = _score.value + 1
+                    }
+                }
             }
             GameButtonType.Audio -> TODO()
         }
@@ -139,12 +159,18 @@ class GameVM(
         // Todo: Replace this code for actual game code
         //delay(eventInterval)
         for (value in events) {
-            Log.d("GameVM", "Setting eventValue to $value")  // Lägg till denna logg
+            //Log.d("GameVM", "Setting eventValue to $value")  // Lägg till denna logg
+            resetButtons()
             VisualArrayPosition++
             _gameState.value = _gameState.value.copy(eventValue = value)
             delay(eventInterval)
         }
 
+    }
+
+    private fun resetButtons(){
+        _isVisualButtonClicked.value = false
+        _isAudioButtonClicked.value = false
     }
 
     private fun runAudioVisualGame(){
@@ -196,6 +222,8 @@ class FakeVM: GameViewModel{
         get() = MutableStateFlow(42).asStateFlow()
     override val nBack: Int
         get() = 2
+    override val isVisualButtonClicked: State<Boolean> get() = mutableStateOf(true)
+    override val isAudioButtonClicked: State<Boolean> get() = mutableStateOf(true)
 
     override fun setGameType(gameType: GameType) {
     }

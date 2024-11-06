@@ -30,6 +30,7 @@ fun GameScreen(
 ) {
     // Observera gameState som tidigare
     val gameState by vm.gameState.collectAsState()
+    val score by vm.score.collectAsState()
 
 
 
@@ -46,7 +47,7 @@ fun GameScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Current points: 0", // Uppdatera denna om du har en variabel för poäng
+                text = "Current points: $score", // Uppdatera denna om du har en variabel för poäng
                 style = MaterialTheme.typography.headlineMedium,
                 color = Color.Black,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -75,7 +76,9 @@ fun GameScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (gameState.gameType != GameType.Visual) {
-                    Button(onClick = { /* Ändra beteendet för knappen */ }) {
+                    Button(
+                        onClick = { vm.checkMatch(GameButtonType.Audio) },
+                        enabled = !vm.isAudioButtonClicked.value){
                         Icon(
                             painter = painterResource(id = R.drawable.sound_on),
                             contentDescription = "Sound",
@@ -85,7 +88,9 @@ fun GameScreen(
                         )
                     }
                 }
-                Button(onClick = { vm.checkMatch(GameButtonType.Visual) }) {
+                Button(
+                    onClick = { vm.checkMatch(GameButtonType.Visual)},
+                    enabled = !vm.isVisualButtonClicked.value ){
                     Icon(
                         painter = painterResource(id = R.drawable.visual),
                         contentDescription = "Visual",
@@ -107,7 +112,7 @@ fun NBackGrid(eventValue: Int) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        var id = 0
+        var id = 1
         for (row in 0 until 3) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
