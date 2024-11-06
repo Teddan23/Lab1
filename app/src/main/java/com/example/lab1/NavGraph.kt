@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.lab1.ui.screens.GameScreen
+import com.example.lab1.ui.screens.SettingsScreen
 import mobappdev.example.nback_cimpl.ui.screens.HomeScreen
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameVM
 import mobappdev.example.nback_cimpl.data.UserPreferencesRepository
@@ -18,6 +19,9 @@ fun NavGraph(navController: NavHostController, userPreferencesRepository: UserPr
         composable(Routes.GAME) {
             GameScreen(vm = gameVm, navController = navController) // Pass UserPreferencesRepository to GameVM
         }
+        composable(Routes.SETTINGS) {
+            SettingsScreen(vm = gameVm, navController = navController) // Pass UserPreferencesRepository to GameVM
+        }
     }
 }
 
@@ -25,4 +29,5 @@ fun NavGraph(navController: NavHostController, userPreferencesRepository: UserPr
 object Routes {
     const val HOME = "home"
     const val GAME = "game"
+    const val SETTINGS = "settings"
 }

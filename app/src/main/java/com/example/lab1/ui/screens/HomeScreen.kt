@@ -104,6 +104,7 @@ fun HomeScreen(
                         Text(text = "Test Visual")
                     }
                     Button(
+                        modifier = Modifier.padding(bottom = 50.dp),
                         onClick = {
                             vm.setGameType(GameType.AudioVisual)
                             navController.navigate(Routes.GAME)
@@ -111,7 +112,13 @@ fun HomeScreen(
                         }) {
                         Text(text = "Test both")
                     }
-                    Text(text = "I wike candy!")
+                    Button(
+                        //modifier = Modifier.padding(bottom = 23.dp),
+                        onClick = {
+                            navController.navigate(Routes.SETTINGS)
+                        }) {
+                        Text(text = "Settings")
+                    }
                 }
             }
             Text(

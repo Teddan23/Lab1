@@ -51,11 +51,21 @@ interface GameViewModel {
     val isAudioButtonClicked: State<Boolean>
     val visualButtonColor: State<Color>
     val audioButtonColor: State<Color>
+    val eventInterval: Long
+    val eventCount: Int
+    val visualGameMode: VisualGameMode
 
     fun setGameType(gameType: GameType)
     fun startGame()
 
     fun checkMatch(gameButtonType: GameButtonType)
+
+    fun updateNBack(newValue: Int)
+    fun updateEventInterval(newValue: Long)
+    fun updateEventCount(newValue: Int)
+
+    fun updateVisualGameMode(newMode: VisualGameMode)
+
 }
 
 class GameVM(
@@ -75,10 +85,15 @@ class GameVM(
         get() = _highscore
 
     // nBack is currently hardcoded
-    override val nBack: Int = 2
+    private val _nBack = mutableStateOf(2)
+    override val nBack: Int get() = _nBack.value
 
     private var job: Job? = null  // coroutine job for the game event
-    private val eventInterval: Long = 2000L  // 2000 ms (2s)
+    private val _eventInterval = mutableStateOf(2000L)      //2sekunder
+    override val eventInterval: Long get() = _eventInterval.value
+
+    private val _eventCount = mutableStateOf(10)  // Default antal events
+    override val eventCount: Int get() = _eventCount.value
 
     private val nBackHelper = NBackHelper()  // Helper that generate the event array
     private var VisualArray = emptyArray<Int>()  // Array with all events
@@ -89,6 +104,9 @@ class GameVM(
     override val isVisualButtonClicked: State<Boolean> get() = _isVisualButtonClicked
     private var _isAudioButtonClicked = mutableStateOf(true)
     override val isAudioButtonClicked: State<Boolean> get() = _isAudioButtonClicked
+
+    private val _visualGameMode = mutableStateOf(VisualGameMode.ThreeXThree)
+    override val visualGameMode: VisualGameMode get() = _visualGameMode.value
 
     private var tts: TextToSpeech? = null
 
@@ -102,6 +120,23 @@ class GameVM(
         _gameState.value = _gameState.value.copy(gameType = gameType)
     }
 
+    override fun updateNBack(newValue: Int) {
+        _nBack.value = newValue
+    }
+
+    override fun updateEventInterval(newValue: Long) {
+        _eventInterval.value = newValue
+    }
+
+    override fun updateEventCount(newValue: Int) {
+        _eventCount.value = newValue
+    }
+
+    override fun updateVisualGameMode(newMode: VisualGameMode) {
+        _visualGameMode.value = newMode
+    }
+
+
     override fun startGame() {
         job?.cancel()  // Cancel any existing game loop
 
@@ -109,24 +144,27 @@ class GameVM(
 
 
         // Get the events from our C-model (returns IntArray, so we need to convert to Array<Int>)
-        when(gameState.value.gameType){
-            GameType.Audio -> {
-                AudioArrayPosition = -1
-                AudioArray = nBackHelper.generateNBackString(10, 9, 30, nBack, 3).toList().toTypedArray()
+            when(gameState.value.gameType){
+                GameType.Audio -> {
+                    AudioArrayPosition = -1
+                    val combinations = if(visualGameMode == VisualGameMode.ThreeXThree) 9 else  25
+                    AudioArray = nBackHelper.generateNBackString(eventCount, combinations, 30, nBack, 3).toList().toTypedArray()
+                }
+                GameType.Visual -> {
+                    VisualArrayPosition = -1
+                    VisualArray = nBackHelper.generateNBackString(eventCount, 9, 30, nBack, 1).toList().toTypedArray()
+                }
+                GameType.AudioVisual -> {
+                    VisualArrayPosition = -1
+                    AudioArrayPosition = -1
+                    var combinations = if(visualGameMode == VisualGameMode.ThreeXThree) 9 else  25
+                    VisualArray = nBackHelper.generateNBackString(eventCount, combinations, 30, nBack, 1).toList().toTypedArray()
+                    combinations = 1 //TODO Ändra till audio combinations
+                    AudioArray = nBackHelper.generateNBackString(eventCount, combinations, 30, nBack, 3).toList().toTypedArray()
+                }
             }
-            GameType.Visual -> {
-                VisualArrayPosition = -1
-                VisualArray = nBackHelper.generateNBackString(10, 9, 30, nBack, 1).toList().toTypedArray()
-            }
-            GameType.AudioVisual -> {
-                VisualArrayPosition = -1
-                AudioArrayPosition = -1
-                VisualArray = nBackHelper.generateNBackString(10, 9, 30, nBack, 1).toList().toTypedArray()
-                AudioArray = nBackHelper.generateNBackString(10, 9, 30, nBack, 3).toList().toTypedArray()
-            }
-        }
         //VisualArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
-        //Log.d("GameVM", "The following sequence was generated: ${events.contentToString()}")
+        //Log.d("GameVM", "The following sequence was geSnerated: ${events.contentToString()}")
         //AudioArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()
 
 
@@ -305,6 +343,11 @@ enum class GameType{
     AudioVisual
 }
 
+enum class VisualGameMode{
+    ThreeXThree,
+    FiveXFive
+}
+
 data class GameState(
     // You can use this state to push values from the VM to your UI.
     val gameType: GameType = GameType.Visual,  // Type of the game
@@ -325,6 +368,9 @@ class FakeVM: GameViewModel{
     override val isAudioButtonClicked: State<Boolean> get() = mutableStateOf(true)
     override val visualButtonColor: State<Color> get() = mutableStateOf(Color.Green)
     override val audioButtonColor: State<Color> get() = mutableStateOf(Color.Red)
+    override val eventCount: Int get() = 1
+    override val eventInterval: Long get() = 1
+    override val visualGameMode: VisualGameMode get() = VisualGameMode.ThreeXThree
 
     override fun setGameType(gameType: GameType) {
     }
@@ -333,5 +379,21 @@ class FakeVM: GameViewModel{
     }
 
     override fun checkMatch(gameButtonType: GameButtonType) {
+    }
+
+    override fun updateNBack(newValue: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun updateEventInterval(newValue: Long) {
+        TODO("Not yet implemented")
+    }
+
+    override fun updateEventCount(newValue: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun updateVisualGameMode(newMode: VisualGameMode) {
+        TODO("Not yet implemented")
     }
 }
