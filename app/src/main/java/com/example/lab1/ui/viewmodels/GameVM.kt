@@ -124,8 +124,6 @@ class GameVM(
             }
             // Todo: update the highscore
         }
-
-        //setCurrentGameState(CurrentGameState.InProgress)
     }
 
     override fun checkMatch(gameButtonType: GameButtonType) {
@@ -138,12 +136,9 @@ class GameVM(
 
         when(gameButtonType){
             GameButtonType.Visual -> {
-                //Log.d("GameVM", "VisualArrayPosition is: ${VisualArrayPosition}")
                 if(VisualArrayPosition - nBack >= 0){
                     _isVisualButtonClicked.value = true
-                    //Log.d("GameVM", "This button press is allowed")
                     if(VisualArray[VisualArrayPosition - nBack] == this.gameState.value.eventValue){
-                        //Log.d("GameVM", "Adding to score!")
                         _score.value = _score.value + 1
                     }
                 }

@@ -53,17 +53,18 @@ fun GameScreen(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            /*if(gameState.eventValue == -1){
-                vm.startGame()
-            }*/
 
 
-            if (gameState.eventValue != -1) {
+            //if (gameState.eventValue != -1) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = "Current eventValue is: ${gameState.eventValue}",
                     textAlign = TextAlign.Center
                 )
+
+            //}
+
+            if(gameState.gameType != GameType.Audio){
                 NBackGrid(eventValue = gameState.eventValue)
             }
 
@@ -88,16 +89,18 @@ fun GameScreen(
                         )
                     }
                 }
-                Button(
-                    onClick = { vm.checkMatch(GameButtonType.Visual)},
-                    enabled = !vm.isVisualButtonClicked.value ){
-                    Icon(
-                        painter = painterResource(id = R.drawable.visual),
-                        contentDescription = "Visual",
-                        modifier = Modifier
-                            .height(48.dp)
-                            .aspectRatio(3f / 2f)
-                    )
+                if (gameState.gameType != GameType.Audio){
+                    Button(
+                        onClick = { vm.checkMatch(GameButtonType.Visual)},
+                        enabled = !vm.isVisualButtonClicked.value ){
+                        Icon(
+                            painter = painterResource(id = R.drawable.visual),
+                            contentDescription = "Visual",
+                            modifier = Modifier
+                                .height(48.dp)
+                                .aspectRatio(3f / 2f)
+                        )
+                    }
                 }
             }
         }

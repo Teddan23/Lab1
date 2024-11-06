@@ -97,6 +97,7 @@ fun HomeScreen(
                         modifier = Modifier.padding(bottom = 16.dp),
                         onClick = {
                             vm.setGameType(GameType.Audio)
+                            navController.navigate(Routes.GAME)
                             vm.startGame()
                         }) {
                         Text(text = "Test Audio")
@@ -113,6 +114,7 @@ fun HomeScreen(
                     Button(
                         onClick = {
                             vm.setGameType(GameType.AudioVisual)
+                            navController.navigate(Routes.GAME)
                             vm.startGame()
                         }) {
                         Text(text = "Test both")
