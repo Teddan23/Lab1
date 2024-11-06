@@ -37,7 +37,7 @@ fun GameScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Yellow)
+            .background(Color(0xFFE0F7FA))
     ) {
         Column(
             modifier = Modifier
@@ -79,7 +79,11 @@ fun GameScreen(
                 if (gameState.gameType != GameType.Visual) {
                     Button(
                         onClick = { vm.checkMatch(GameButtonType.Audio) },
-                        enabled = !vm.isAudioButtonClicked.value){
+                        enabled = !vm.isAudioButtonClicked.value,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Blue, // För enabled-knappen
+                            disabledContainerColor = vm.audioButtonColor.value // Färg för disabled-knappen
+                        )){
                         Icon(
                             painter = painterResource(id = R.drawable.sound_on),
                             contentDescription = "Sound",
@@ -92,7 +96,11 @@ fun GameScreen(
                 if (gameState.gameType != GameType.Audio){
                     Button(
                         onClick = { vm.checkMatch(GameButtonType.Visual)},
-                        enabled = !vm.isVisualButtonClicked.value ){
+                        enabled = !vm.isVisualButtonClicked.value,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Blue, // För enabled-knappen
+                            disabledContainerColor = vm.visualButtonColor.value // Färg för disabled-knappen
+                        ) ){
                         Icon(
                             painter = painterResource(id = R.drawable.visual),
                             contentDescription = "Visual",
@@ -144,7 +152,7 @@ fun GridCell(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .size(80.dp)
-            .background(if (id == eventValue) Color.Green else Color.White)
+            .background(if (id == eventValue) Color.Blue else Color.White)
             .padding(4.dp)
     ) {
         // Cellinnehåll kan vara tomt eller lägga till mer UI om det behövs

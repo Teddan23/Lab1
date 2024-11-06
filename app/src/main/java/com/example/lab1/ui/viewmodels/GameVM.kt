@@ -19,6 +19,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import mobappdev.example.nback_cimpl.data.UserPreferencesRepository
+import android.content.Context
+import android.speech.tts.TextToSpeech
+import android.speech.tts.TextToSpeech.OnInitListener
+import androidx.compose.ui.graphics.Color
+import java.util.Locale
 
 /**
  * This is the GameViewModel.
@@ -44,6 +49,8 @@ interface GameViewModel {
     val nBack: Int
     val isVisualButtonClicked: State<Boolean>
     val isAudioButtonClicked: State<Boolean>
+    val visualButtonColor: State<Color>
+    val audioButtonColor: State<Color>
 
     fun setGameType(gameType: GameType)
     fun startGame()
@@ -52,8 +59,9 @@ interface GameViewModel {
 }
 
 class GameVM(
-    val userPreferencesRepository: UserPreferencesRepository
-): GameViewModel, ViewModel() {
+    val userPreferencesRepository: UserPreferencesRepository,
+    val context: Context
+): GameViewModel, ViewModel(), OnInitListener {
     private val _gameState = MutableStateFlow(GameState())
     override val gameState: StateFlow<GameState>
         get() = _gameState.asStateFlow()
@@ -80,7 +88,14 @@ class GameVM(
     private var _isVisualButtonClicked = mutableStateOf(true)
     override val isVisualButtonClicked: State<Boolean> get() = _isVisualButtonClicked
     private var _isAudioButtonClicked = mutableStateOf(true)
-    override val isAudioButtonClicked: State<Boolean> get() = _isVisualButtonClicked
+    override val isAudioButtonClicked: State<Boolean> get() = _isAudioButtonClicked
+
+    private var tts: TextToSpeech? = null
+
+    private var _visualButtonColor = mutableStateOf(Color.Gray)
+    private var _audioButtonColor = mutableStateOf(Color.Gray)
+    override val visualButtonColor: State<Color> get() = _visualButtonColor
+    override val audioButtonColor: State<Color> get() = _audioButtonColor
 
     override fun setGameType(gameType: GameType) {
         // update the gametype in the gamestate
@@ -140,14 +155,42 @@ class GameVM(
                     _isVisualButtonClicked.value = true
                     if(VisualArray[VisualArrayPosition - nBack] == this.gameState.value.eventValue){
                         _score.value = _score.value + 1
+                        _visualButtonColor.value = Color.Green.copy(alpha = 0.4f)
+                    }
+                    else{
+                        _visualButtonColor.value = Color.Red.copy(alpha = 0.5f)
                     }
                 }
             }
-            GameButtonType.Audio -> TODO()
+            GameButtonType.Audio -> {
+                if(AudioArrayPosition - nBack >= 0){
+                    _isAudioButtonClicked.value = true
+                    if(AudioArray[AudioArrayPosition - nBack] == gameState.value.eventValue){
+                        _score.value = _score.value + 1
+                        _audioButtonColor.value = Color.Green.copy(alpha = 0.5f)
+                    }
+                    else{
+                        _audioButtonColor.value = Color.Red.copy(alpha = 0.5f)
+                    }
+                }
+            }
         }
     }
-    private fun runAudioGame() {
+
+
+    private suspend fun runAudioGame() {
         // Todo: Make work for Basic grade
+
+        for (value in AudioArray) {
+
+            resetButtons()
+            AudioArrayPosition++
+            // Spela upp ljudet med TTS för varje värde i AudioArray
+            speakOut(value)  // Detta spelar upp A, B osv.
+            _gameState.value = _gameState.value.copy(eventValue = value)
+            // Vänta lite mellan varje ljud, t.ex. 2 sekunder
+            delay(eventInterval)
+        }
     }
 
     private suspend fun runVisualGame(events: Array<Int>){
@@ -172,6 +215,57 @@ class GameVM(
         // Todo: Make work for Higher grade
     }
 
+    private fun speakOut(value: Int) {
+        val textToSpeak = when (value) {
+            1 -> "A"
+            2 -> "B"
+            3 -> "C"
+            4 -> "D"
+            5 -> "E"
+            6 -> "F"
+            7 -> "G"
+            8 -> "H"
+            9 -> "I"
+            10 -> "J"
+            11 -> "K"
+            12 -> "L"
+            13 -> "M"
+            14 -> "N"
+            15 -> "O"
+            16 -> "P"
+            17 -> "Q"
+            18 -> "R"
+            19 -> "S"
+            20 -> "T"
+            21 -> "U"
+            22 -> "V"
+            23 -> "W"
+            24 -> "X"
+            25 -> "Y"
+            26 -> "Z"
+            // Lägg till fler regler om det finns fler värden
+            else -> "Unknown"
+        }
+
+        tts?.speak(textToSpeak, TextToSpeech.QUEUE_FLUSH, null, null)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        tts?.stop()
+        tts?.shutdown()
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            // Ange språk för TTS (t.ex. engelska)
+            tts?.setLanguage(Locale.US)
+        } else {
+            Log.e("GameVM", "TTS Initialization failed")
+        }
+    }
+
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -179,18 +273,20 @@ class GameVM(
                 if (application !is GameApplication) {
                     throw IllegalStateException("Expected GameApplication but got ${application?.javaClass?.simpleName}")
                 }
-                GameVM(application.userPreferencesRespository)
+                GameVM(application.userPreferencesRespository, application.applicationContext)
             }
         }
     }
 
     init {
         // Code that runs during creation of the vm
+        tts = TextToSpeech(context, this)
         viewModelScope.launch {
             userPreferencesRepository.highscore.collect {
                 _highscore.value = it
             }
         }
+
     }
 }
 
@@ -219,6 +315,8 @@ class FakeVM: GameViewModel{
         get() = 2
     override val isVisualButtonClicked: State<Boolean> get() = mutableStateOf(true)
     override val isAudioButtonClicked: State<Boolean> get() = mutableStateOf(true)
+    override val visualButtonColor: State<Color> get() = mutableStateOf(Color.Green)
+    override val audioButtonColor: State<Color> get() = mutableStateOf(Color.Red)
 
     override fun setGameType(gameType: GameType) {
     }
