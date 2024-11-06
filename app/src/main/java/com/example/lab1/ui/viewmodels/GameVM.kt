@@ -112,17 +112,17 @@ class GameVM(
         when(gameState.value.gameType){
             GameType.Audio -> {
                 AudioArrayPosition = -1
-                AudioArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()
+                AudioArray = nBackHelper.generateNBackString(10, 9, 30, nBack, 3).toList().toTypedArray()
             }
             GameType.Visual -> {
                 VisualArrayPosition = -1
-                VisualArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()
+                VisualArray = nBackHelper.generateNBackString(10, 9, 30, nBack, 1).toList().toTypedArray()
             }
             GameType.AudioVisual -> {
                 VisualArrayPosition = -1
                 AudioArrayPosition = -1
-                VisualArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()
-                AudioArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()
+                VisualArray = nBackHelper.generateNBackString(10, 9, 30, nBack, 1).toList().toTypedArray()
+                AudioArray = nBackHelper.generateNBackString(10, 9, 30, nBack, 3).toList().toTypedArray()
             }
         }
         //VisualArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
@@ -153,7 +153,7 @@ class GameVM(
             GameButtonType.Visual -> {
                 if(VisualArrayPosition - nBack >= 0){
                     _isVisualButtonClicked.value = true
-                    if(VisualArray[VisualArrayPosition - nBack] == this.gameState.value.eventValue){
+                    if(VisualArray[VisualArrayPosition - nBack] == this.gameState.value.visualEventValue){
                         _score.value = _score.value + 1
                         _visualButtonColor.value = Color.Green.copy(alpha = 0.4f)
                     }
@@ -165,9 +165,9 @@ class GameVM(
             GameButtonType.Audio -> {
                 if(AudioArrayPosition - nBack >= 0){
                     _isAudioButtonClicked.value = true
-                    if(AudioArray[AudioArrayPosition - nBack] == gameState.value.eventValue){
+                    if(AudioArray[AudioArrayPosition - nBack] == gameState.value.audioEventValue){
                         _score.value = _score.value + 1
-                        _audioButtonColor.value = Color.Green.copy(alpha = 0.5f)
+                        _audioButtonColor.value = Color.Green.copy(alpha = 0.4f)
                     }
                     else{
                         _audioButtonColor.value = Color.Red.copy(alpha = 0.5f)
@@ -187,7 +187,7 @@ class GameVM(
             AudioArrayPosition++
             // Spela upp ljudet med TTS för varje värde i AudioArray
             speakOut(value)  // Detta spelar upp A, B osv.
-            _gameState.value = _gameState.value.copy(eventValue = value)
+            _gameState.value = _gameState.value.copy(audioEventValue = value)
             // Vänta lite mellan varje ljud, t.ex. 2 sekunder
             delay(eventInterval)
         }
@@ -200,7 +200,7 @@ class GameVM(
             //Log.d("GameVM", "Setting eventValue to $value")  // Lägg till denna logg
             resetButtons()
             VisualArrayPosition++
-            _gameState.value = _gameState.value.copy(eventValue = value)
+            _gameState.value = _gameState.value.copy(visualEventValue = value)
             delay(eventInterval)
         }
 
@@ -211,8 +211,16 @@ class GameVM(
         _isAudioButtonClicked.value = false
     }
 
-    private fun runAudioVisualGame(){
+    private suspend fun runAudioVisualGame(){
         // Todo: Make work for Higher grade
+        for(value in VisualArray){
+            resetButtons()
+            VisualArrayPosition++
+            AudioArrayPosition++
+            speakOut(AudioArray[AudioArrayPosition])
+            _gameState.value = _gameState.value.copy(visualEventValue = value, audioEventValue = AudioArray[AudioArrayPosition])
+            delay(eventInterval)
+        }
     }
 
     private fun speakOut(value: Int) {
@@ -300,8 +308,8 @@ enum class GameType{
 data class GameState(
     // You can use this state to push values from the VM to your UI.
     val gameType: GameType = GameType.Visual,  // Type of the game
-    val eventValue: Int = -1,  // The value of the array string
-    //val currentGameState: CurrentGameState = CurrentGameState.HomeSite
+    val visualEventValue: Int = -1,  // The value of the array string
+    val audioEventValue: Int = -1
 )
 
 class FakeVM: GameViewModel{

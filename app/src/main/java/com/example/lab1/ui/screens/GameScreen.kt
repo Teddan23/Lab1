@@ -58,14 +58,19 @@ fun GameScreen(
             //if (gameState.eventValue != -1) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "Current eventValue is: ${gameState.eventValue}",
+                    text = "Current visualEventValue is: ${gameState.visualEventValue}",
                     textAlign = TextAlign.Center
                 )
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = "Current audioEventValue is: ${gameState.audioEventValue}",
+                textAlign = TextAlign.Center
+            )
 
             //}
 
             if(gameState.gameType != GameType.Audio){
-                NBackGrid(eventValue = gameState.eventValue)
+                NBackGrid(eventValue = gameState.visualEventValue)
             }
 
 

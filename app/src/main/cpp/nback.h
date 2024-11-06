@@ -10,7 +10,7 @@
 
 typedef struct nback_type *Nback;
 
-Nback create(int size, int combinations, int matchPercentage, int nback);
+Nback create(int size, int combinations, int matchPercentage, int nback, int seed);
 int getIndexOf(Nback s, int index);
 
 #endif

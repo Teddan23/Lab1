@@ -6,9 +6,9 @@
 JNIEXPORT jintArray JNICALL
 Java_com_example_lab1_NBackHelper_createNBackString(JNIEnv *env, jobject this,
                                                                   jint size, jint combinations,
-                                                                  jint matchPercentage, jint nBack) {
+                                                                  jint matchPercentage, jint nBack, jint seed) {
     Nback s1;
-    s1 = create(size, combinations, matchPercentage, nBack);
+    s1 = create(size, combinations, matchPercentage, nBack, seed);
 
     // Create a new jintArray to store the content array
     jintArray contentArray = (*env)->NewIntArray(env, s1->size);

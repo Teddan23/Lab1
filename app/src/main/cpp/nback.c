@@ -25,13 +25,13 @@ void fillInAllEmpty(int nBackString[], int size, int combinations, int nback);
  * @param matchPercentage  percentage of matches we want to have
  * @param nback         number of how many positions we want between the matching positions (e.g. 3; 1-2-3-1 is a match)
  */
-void createNBackString(int nBackString[], int size, int combinations, int matchPercentage, int nback);
+void createNBackString(int nBackString[], int size, int combinations, int matchPercentage, int nback, int seed);
 
-Nback create(int size, int combinations, int matchPercentage, int nback){
+Nback create(int size, int combinations, int matchPercentage, int nback, int seed){
     // Generate the array to save positions to
     Nback s = malloc(sizeof(struct nback_type));
     s->size = size;
-    createNBackString(s->content, size, combinations, matchPercentage, nback);
+    createNBackString(s->content, size, combinations, matchPercentage, nback, seed);
     return s;
 }
 
@@ -40,9 +40,9 @@ int getIndexOf(Nback s, int i){
 }
 
 
-void createNBackString(int nBackString[], int size, int combinations, int matchPercentage, int nback){
+void createNBackString(int nBackString[], int size, int combinations, int matchPercentage, int nback, int seed){
     // Seed the random number generator
-    srand((unsigned)time(NULL));
+    srand((unsigned)time(NULL) + seed);
 
     // Initialize all elements in nBackString to 0
     for(int i = 0; i<size; i++){
