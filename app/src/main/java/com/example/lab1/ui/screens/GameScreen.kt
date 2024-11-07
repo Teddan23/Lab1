@@ -1,12 +1,11 @@
 package com.example.lab1.ui.screens
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.runtime.Composable
-import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -21,8 +20,12 @@ import androidx.navigation.compose.rememberNavController
 import com.example.lab1.GameButtonType
 import com.example.lab1.R
 import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
+import mobappdev.example.nback_cimpl.ui.viewmodels.GameState
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
+import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
+import mobappdev.example.nback_cimpl.ui.viewmodels.VisualGameMode
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameScreen(
     vm: GameViewModel,
@@ -32,114 +35,108 @@ fun GameScreen(
     val gameState by vm.gameState.collectAsState()
     val score by vm.score.collectAsState()
 
-
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFE0F7FA))
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Current points: $score", // Uppdatera denna om du har en variabel för poäng
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.Black,
-                modifier = Modifier.padding(bottom = 16.dp)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Current points: $score") },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFE0F7FA))
             )
-
-
-
-            //if (gameState.eventValue != -1) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = "Current visualEventValue is: ${gameState.visualEventValue}",
-                    textAlign = TextAlign.Center
-                )
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = "Current audioEventValue is: ${gameState.audioEventValue}",
-                textAlign = TextAlign.Center
-            )
-
-            //}
-
-            if(gameState.gameType != GameType.Audio){
-                NBackGrid(eventValue = gameState.visualEventValue)
-            }
-
-
-            Row(
+        },
+        content = { paddingValues ->
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxSize()
+                    .background(Color(0xFFE0F7FA))
+                    .padding(paddingValues)
             ) {
-                if (gameState.gameType != GameType.Visual) {
-                    Button(
-                        onClick = { vm.checkMatch(GameButtonType.Audio) },
-                        enabled = !vm.isAudioButtonClicked.value,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Blue, // För enabled-knappen
-                            disabledContainerColor = vm.audioButtonColor.value // Färg för disabled-knappen
-                        )){
-                        Icon(
-                            painter = painterResource(id = R.drawable.sound_on),
-                            contentDescription = "Sound",
-                            modifier = Modifier
-                                .height(48.dp)
-                                .aspectRatio(3f / 2f)
-                        )
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Current visualEventValue: ${gameState.visualEventValue}",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text(
+                        text = "Current audioEventValue: ${gameState.audioEventValue}",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // NBackGrid använder LazyVerticalGrid istället för Column
+                    if (gameState.gameType != GameType.Audio) {
+                        NBackGrid(gameState = gameState)
                     }
-                }
-                if (gameState.gameType != GameType.Audio){
-                    Button(
-                        onClick = { vm.checkMatch(GameButtonType.Visual)},
-                        enabled = !vm.isVisualButtonClicked.value,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Blue, // För enabled-knappen
-                            disabledContainerColor = vm.visualButtonColor.value // Färg för disabled-knappen
-                        ) ){
-                        Icon(
-                            painter = painterResource(id = R.drawable.visual),
-                            contentDescription = "Visual",
-                            modifier = Modifier
-                                .height(48.dp)
-                                .aspectRatio(3f / 2f)
-                        )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (gameState.gameType != GameType.Visual) {
+                            Button(
+                                onClick = { vm.checkMatch(GameButtonType.Audio) },
+                                enabled = !vm.isAudioButtonClicked.value,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Blue,
+                                    disabledContainerColor = vm.audioButtonColor.value
+                                )
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.sound_on),
+                                    contentDescription = "Sound",
+                                    modifier = Modifier
+                                        .height(48.dp)
+                                        .aspectRatio(3f / 2f)
+                                )
+                            }
+                        }
+                        if (gameState.gameType != GameType.Audio) {
+                            Button(
+                                onClick = { vm.checkMatch(GameButtonType.Visual) },
+                                enabled = !vm.isVisualButtonClicked.value,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Blue,
+                                    disabledContainerColor = vm.visualButtonColor.value
+                                )
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.visual),
+                                    contentDescription = "Visual",
+                                    modifier = Modifier
+                                        .height(48.dp)
+                                        .aspectRatio(3f / 2f)
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
-    }
+    )
 }
 
 @Composable
-fun NBackGrid(eventValue: Int) {
-    Column(
+fun NBackGrid(gameState: GameState) {
+    // Bestäm storleken på grid beroende på spelets visualGameMode
+    val mapBuilder: Int = if (gameState.visualGameMode == VisualGameMode.ThreeXThree) 3 else 5
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(mapBuilder), // Ställ in antalet kolumner
         modifier = Modifier
-            .size(300.dp)
+            .fillMaxWidth()
             .padding(16.dp),
+        contentPadding = PaddingValues(8.dp), // Lägg till padding mellan gridcellerna
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        var id = 1
-        for (row in 0 until 3) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                for (col in 0 until 3) {
-                    // Skicka vidare det aktuella eventValue till varje GridCell
-                    GridCell(id = id, eventValue = eventValue)
-                    id += 1
-                }
-            }
+        items(mapBuilder * mapBuilder) { index ->
+            // Skicka vidare ID:t (index) och eventValue för varje cell
+            GridCell(id = index + 1, eventValue = gameState.visualEventValue)
         }
     }
 }
@@ -149,18 +146,14 @@ fun GridCell(
     id: Int,
     eventValue: Int
 ) {
-    // Debug-utskrift för att bekräfta när GridCell uppdateras
-    //println("GridCell ID: $id, EventValue: $eventValue")
-
-    // Ändra bakgrundsfärgen dynamiskt baserat på eventValue
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .size(80.dp)
+            .aspectRatio(1f) // Gör cellerna kvadratiska
             .background(if (id == eventValue) Color.Blue else Color.White)
             .padding(4.dp)
     ) {
-        // Cellinnehåll kan vara tomt eller lägga till mer UI om det behövs
+        // Cellinnehåll kan vara här, till exempel en text eller ikon
     }
 }
 

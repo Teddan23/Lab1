@@ -23,8 +23,9 @@ fun SettingsScreen(vm: GameViewModel, navController: NavController) {
     var nBackValue by remember { mutableStateOf(vm.nBack) }
     var eventIntervalValue by remember { mutableStateOf((vm.eventInterval / 1000).toInt()) }
     var eventCountValue by remember { mutableStateOf(vm.eventCount) }
+    val gameState by vm.gameState.collectAsState()
 
-    var selectedVisualMode by remember { mutableStateOf(vm.visualGameMode) }
+    var selectedVisualMode by remember { mutableStateOf(vm.gameState.value.visualGameMode) }
 
     Scaffold(
         topBar = {
