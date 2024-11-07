@@ -54,6 +54,8 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
 
 
+
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) }
     ) {
@@ -123,7 +125,7 @@ fun HomeScreen(
             }
             Text(
                 modifier = Modifier.padding(16.dp),
-                text = "Hello there! :3",
+                text = "Hello there! :3 (makka)",
                 style = MaterialTheme.typography.displaySmall
             )
             /*Row(

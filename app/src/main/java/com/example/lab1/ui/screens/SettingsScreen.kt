@@ -20,7 +20,7 @@ fun SettingsScreen(vm: GameViewModel, navController: NavController) {
 
     // Används för att hålla de nya värdena lokalt i skärmen
     var nBackValue by remember { mutableStateOf(vm.nBack) }
-    var eventIntervalValue by remember { mutableStateOf((vm.eventInterval / 1000).toInt()) }
+    var eventIntervalValue by remember { mutableStateOf((vm.eventInterval / 1000)) }
     var eventCountValue by remember { mutableStateOf(vm.eventCount) }
 
     var possibleAudioOutputValue by remember { mutableStateOf(vm.possibleAudioOutput) }
@@ -157,10 +157,14 @@ fun SettingsScreen(vm: GameViewModel, navController: NavController) {
                         onClick = {
                             // Uppdatera värden i GameVM
                             vm.updateNBack(nBackValue)
-                            vm.updateEventInterval(eventIntervalValue * 1000L)
+                            vm.updateEventInterval(eventIntervalValue * 1000)
                             vm.updateEventCount(eventCountValue)
                             vm.updateVisualGameMode(selectedVisualMode)
                             vm.updatePossibleAudioOutput(possibleAudioOutputValue)
+
+                            vm.saveSettings()
+
+
                             navController.popBackStack()  // Gå tillbaka efter att ha sparat
                         },
                         modifier = Modifier.align(Alignment.CenterHorizontally)

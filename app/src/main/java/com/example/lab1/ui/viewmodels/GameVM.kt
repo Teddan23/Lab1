@@ -52,7 +52,7 @@ interface GameViewModel {
     val isAudioButtonClicked: State<Boolean>
     val visualButtonColor: State<Color>
     val audioButtonColor: State<Color>
-    val eventInterval: Long
+    val eventInterval: Int
     val eventCount: Int
     val possibleAudioOutput: Int
     val visualGameMode: Int
@@ -63,11 +63,13 @@ interface GameViewModel {
     fun checkMatch(gameButtonType: GameButtonType)
 
     fun updateNBack(newValue: Int)
-    fun updateEventInterval(newValue: Long)
+    fun updateEventInterval(newValue: Int)
     fun updateEventCount(newValue: Int)
 
     fun updateVisualGameMode(newMode: Int)
     fun updatePossibleAudioOutput(newValue: Int)
+
+    fun saveSettings()
 
 }
 
@@ -92,8 +94,8 @@ class GameVM(
     override val nBack: Int get() = _nBack.value
 
     private var job: Job? = null  // coroutine job for the game event
-    private val _eventInterval = mutableStateOf(2000L)      //2sekunder
-    override val eventInterval: Long get() = _eventInterval.value
+    private val _eventInterval = mutableStateOf(2000)      //2sekunder
+    override val eventInterval: Int get() = _eventInterval.value
 
     private val _eventCount = mutableStateOf(10)  // Default antal events
     override val eventCount: Int get() = _eventCount.value
@@ -133,7 +135,7 @@ class GameVM(
         _nBack.value = newValue
     }
 
-    override fun updateEventInterval(newValue: Long) {
+    override fun updateEventInterval(newValue: Int) {
         _eventInterval.value = newValue
     }
 
@@ -147,6 +149,18 @@ class GameVM(
 
     override fun updatePossibleAudioOutput(newValue: Int) {
         _possibleAudioOutput.value = newValue
+    }
+
+    override fun saveSettings() {
+        viewModelScope.launch {
+            userPreferencesRepository.saveUserSettings(
+                nBackValue = nBack,
+                eventInterval = (eventInterval / 1000),
+                eventCount = eventCount,
+                visualGameMode = visualGameMode,
+                possibleAudioOutput = possibleAudioOutput
+            )
+        }
     }
 
 
@@ -242,7 +256,7 @@ class GameVM(
             speakOut(value)  // Detta spelar upp A, B osv.
             _gameState.value = _gameState.value.copy(audioEventValue = value)
             // Vänta lite mellan varje ljud, t.ex. 2 sekunder
-            delay(eventInterval)
+            delay(eventInterval.toLong())
         }
     }
 
@@ -254,7 +268,7 @@ class GameVM(
             resetButtons()
             VisualArrayPosition++
             _gameState.value = _gameState.value.copy(visualEventValue = value)
-            delay(eventInterval)
+            delay(eventInterval.toLong())
         }
 
     }
@@ -272,7 +286,7 @@ class GameVM(
             AudioArrayPosition++
             speakOut(AudioArray[AudioArrayPosition])
             _gameState.value = _gameState.value.copy(visualEventValue = value, audioEventValue = AudioArray[AudioArrayPosition])
-            delay(eventInterval)
+            delay(eventInterval.toLong())
         }
     }
 
@@ -337,6 +351,19 @@ class GameVM(
         }
     }
 
+    /*fun loadSettings() {
+        viewModelScope.launch {
+            userPreferencesRepository.getUserSettings().collect { settings ->
+                // Sätt värden i ViewModel baserat på vad som finns sparat i datastore
+                _nBack.value = settings.nBackValue
+                _eventInterval.value = settings.eventInterval * 1000L // Omvandlar till millisekunder
+                _eventCount.value = settings.eventCount
+                _visualGameMode.value = settings.visualGameMode
+                _possibleAudioOutput.value = settings.possibleAudioOutput
+            }
+        }
+    }*/
+
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
@@ -353,11 +380,40 @@ class GameVM(
     init {
         // Code that runs during creation of the vm
         tts = TextToSpeech(context, this)
+        //loadSettings()
         viewModelScope.launch {
             userPreferencesRepository.highscore.collect {
                 _highscore.value = it
             }
         }
+        viewModelScope.launch {
+            userPreferencesRepository.nBackFlow.collect {
+                _nBack.value = it
+            }
+        }
+        viewModelScope.launch {
+            userPreferencesRepository.eventIntervalFlow.collect {
+                _eventInterval.value = it*1000
+            }
+        }
+        viewModelScope.launch {
+            userPreferencesRepository.eventCountFlow.collect {
+                _eventCount.value = it
+            }
+        }
+        viewModelScope.launch {
+            userPreferencesRepository.visualGameModeFlow.collect{
+                _visualGameMode.value = it
+            }
+        }
+        viewModelScope.launch {
+            userPreferencesRepository.audioOutputFlow.collect{
+                _possibleAudioOutput.value = it
+            }
+        }
+
+
+        Log.d("MAKKA", "Read the settings: $_nBack, $_eventInterval, $_eventCount, $_visualGameMode, $_possibleAudioOutput")
 
     }
 }
@@ -390,7 +446,7 @@ class FakeVM: GameViewModel{
     override val visualButtonColor: State<Color> get() = mutableStateOf(Color.Green)
     override val audioButtonColor: State<Color> get() = mutableStateOf(Color.Red)
     override val eventCount: Int get() = 1
-    override val eventInterval: Long get() = 1
+    override val eventInterval: Int get() = 1
     override var possibleAudioOutput: Int = 10
     override val visualGameMode: Int = 3
     //override val visualGameMode: VisualGameMode get() = VisualGameMode.ThreeXThree
@@ -408,7 +464,7 @@ class FakeVM: GameViewModel{
         TODO("Not yet implemented")
     }
 
-    override fun updateEventInterval(newValue: Long) {
+    override fun updateEventInterval(newValue: Int) {
         TODO("Not yet implemented")
     }
 
@@ -421,6 +477,10 @@ class FakeVM: GameViewModel{
     }
 
     override fun updatePossibleAudioOutput(newValue: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun saveSettings() {
         TODO("Not yet implemented")
     }
 }
