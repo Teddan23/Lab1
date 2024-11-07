@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
-import mobappdev.example.nback_cimpl.ui.viewmodels.VisualGameMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,7 +25,7 @@ fun SettingsScreen(vm: GameViewModel, navController: NavController) {
 
     var possibleAudioOutputValue by remember { mutableStateOf(vm.possibleAudioOutput) }
 
-    var selectedVisualMode by remember { mutableStateOf(vm.gameState.value.visualGameMode) }
+    var selectedVisualMode by remember { mutableStateOf(vm.visualGameMode) }
 
     Scaffold(
         topBar = {
@@ -118,21 +117,17 @@ fun SettingsScreen(vm: GameViewModel, navController: NavController) {
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        RadioButton(
-                            selected = selectedVisualMode == VisualGameMode.ThreeXThree,
-                            onClick = {
-                                selectedVisualMode = VisualGameMode.ThreeXThree
-                            }
-                        )
-                        Text("3x3")
-
-                        RadioButton(
-                            selected = selectedVisualMode == VisualGameMode.FiveXFive,
-                            onClick = {
-                                selectedVisualMode = VisualGameMode.FiveXFive
-                            }
-                        )
-                        Text("5x5")
+                        IconButton(
+                            onClick = { if (selectedVisualMode > 2) selectedVisualMode-- }
+                        ) {
+                            Text("-", fontSize = 20.sp)
+                        }
+                        Text("$selectedVisualMode x $selectedVisualMode", fontSize = 20.sp)
+                        IconButton(
+                            onClick = { if (selectedVisualMode < 6) selectedVisualMode++ }
+                        ) {
+                            Text("+", fontSize = 20.sp)
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))

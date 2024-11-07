@@ -54,6 +54,7 @@ interface GameViewModel {
     val eventInterval: Long
     val eventCount: Int
     val possibleAudioOutput: Int
+    val visualGameMode: Int
 
     fun setGameType(gameType: GameType)
     fun startGame()
@@ -64,7 +65,7 @@ interface GameViewModel {
     fun updateEventInterval(newValue: Long)
     fun updateEventCount(newValue: Int)
 
-    fun updateVisualGameMode(newMode: VisualGameMode)
+    fun updateVisualGameMode(newMode: Int)
     fun updatePossibleAudioOutput(newValue: Int)
 
 }
@@ -109,6 +110,9 @@ class GameVM(
     private var _possibleAudioOutput = mutableStateOf(10)
     override val possibleAudioOutput: Int get() = _possibleAudioOutput.value
 
+    private var _visualGameMode = mutableStateOf(3)
+    override val visualGameMode: Int get() = _visualGameMode.value
+
     //private val _visualGameMode = mutableStateOf(VisualGameMode.ThreeXThree)
     //override val visualGameMode: VisualGameMode get() = _visualGameMode.value
 
@@ -136,8 +140,8 @@ class GameVM(
         _eventCount.value = newValue
     }
 
-    override fun updateVisualGameMode(newMode: VisualGameMode) {
-        _gameState.value.visualGameMode = newMode
+    override fun updateVisualGameMode(newMode: Int) {
+        _visualGameMode.value = newMode
     }
 
     override fun updatePossibleAudioOutput(newValue: Int) {
@@ -159,14 +163,12 @@ class GameVM(
                 }
                 GameType.Visual -> {
                     VisualArrayPosition = -1
-                    val combinations = if(_gameState.value.visualGameMode == VisualGameMode.ThreeXThree) 9 else  25
-                    VisualArray = nBackHelper.generateNBackString(eventCount, combinations, 30, nBack, 1).toList().toTypedArray()
+                    VisualArray = nBackHelper.generateNBackString(eventCount, visualGameMode*visualGameMode, 30, nBack, 1).toList().toTypedArray()
                 }
                 GameType.AudioVisual -> {
                     VisualArrayPosition = -1
                     AudioArrayPosition = -1
-                    val combinations = if(_gameState.value.visualGameMode == VisualGameMode.ThreeXThree) 9 else  25
-                    VisualArray = nBackHelper.generateNBackString(eventCount, combinations, 30, nBack, 1).toList().toTypedArray()
+                    VisualArray = nBackHelper.generateNBackString(eventCount, visualGameMode*visualGameMode, 30, nBack, 1).toList().toTypedArray()
                     AudioArray = nBackHelper.generateNBackString(eventCount, possibleAudioOutput, 30, nBack, 3).toList().toTypedArray()
                 }
             }
@@ -350,17 +352,11 @@ enum class GameType{
     AudioVisual
 }
 
-enum class VisualGameMode{
-    ThreeXThree,
-    FiveXFive
-}
-
 data class GameState(
     // You can use this state to push values from the VM to your UI.
     val gameType: GameType = GameType.Visual,  // Type of the game
     val visualEventValue: Int = -1,  // The value of the array string
     val audioEventValue: Int = -1,
-    var visualGameMode: VisualGameMode = VisualGameMode.ThreeXThree
 )
 
 class FakeVM: GameViewModel{
@@ -379,6 +375,7 @@ class FakeVM: GameViewModel{
     override val eventCount: Int get() = 1
     override val eventInterval: Long get() = 1
     override var possibleAudioOutput: Int = 10
+    override val visualGameMode: Int = 3
     //override val visualGameMode: VisualGameMode get() = VisualGameMode.ThreeXThree
 
     override fun setGameType(gameType: GameType) {
@@ -402,7 +399,7 @@ class FakeVM: GameViewModel{
         TODO("Not yet implemented")
     }
 
-    override fun updateVisualGameMode(newMode: VisualGameMode) {
+    override fun updateVisualGameMode(newMode: Int) {
         TODO("Not yet implemented")
     }
 

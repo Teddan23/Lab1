@@ -8,6 +8,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,7 +25,6 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameState
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
-import mobappdev.example.nback_cimpl.ui.viewmodels.VisualGameMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +35,7 @@ fun GameScreen(
     // Observera gameState som tidigare
     val gameState by vm.gameState.collectAsState()
     val score by vm.score.collectAsState()
+    val visualGameMode by remember { mutableStateOf(vm.visualGameMode) }
 
     Scaffold(
         topBar = {
@@ -67,7 +69,7 @@ fun GameScreen(
 
                     // NBackGrid använder LazyVerticalGrid istället för Column
                     if (gameState.gameType != GameType.Audio) {
-                        NBackGrid(gameState = gameState)
+                        NBackGrid(gameState = gameState, visualGameMode = visualGameMode)
                     }
 
                     Row(
@@ -121,12 +123,11 @@ fun GameScreen(
 }
 
 @Composable
-fun NBackGrid(gameState: GameState) {
+fun NBackGrid(gameState: GameState, visualGameMode: Int) {
     // Bestäm storleken på grid beroende på spelets visualGameMode
-    val mapBuilder: Int = if (gameState.visualGameMode == VisualGameMode.ThreeXThree) 3 else 5
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(mapBuilder), // Ställ in antalet kolumner
+        columns = GridCells.Fixed(visualGameMode), // Ställ in antalet kolumner
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
@@ -134,7 +135,7 @@ fun NBackGrid(gameState: GameState) {
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(mapBuilder * mapBuilder) { index ->
+        items(visualGameMode * visualGameMode) { index ->
             // Skicka vidare ID:t (index) och eventValue för varje cell
             GridCell(id = index + 1, eventValue = gameState.visualEventValue)
         }
