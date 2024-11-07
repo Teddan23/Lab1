@@ -18,20 +18,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             Lab1Theme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Instantiate the viewmodel
                     val gameViewModel: GameVM = viewModel(
                         factory = GameVM.Factory
                     )
 
-                    // Create a NavController
                     val navController = rememberNavController()
 
-                    // Define the navigation graph
                     NavGraph(navController, gameViewModel.userPreferencesRepository, gameViewModel)
                 }
             }

@@ -68,7 +68,6 @@ class UserPreferencesRepository (
         visualGameMode: Int,
         possibleAudioOutput: Int
     ) {
-        //Log.d(TAG, "Saving userSetings: $nBackValue, $eventInterval, $eventCount, $visualGameMode, $possibleAudioOutput")
         dataStore.edit { preferences ->
             preferences[N_BACK_KEY] = nBackValue
             preferences[EVENT_INTERVAL_KEY] = eventInterval
@@ -89,7 +88,7 @@ class UserPreferencesRepository (
         }
         .map { preferences ->
             val value = preferences[N_BACK_KEY] ?: 5
-            Log.d(TAG, "nBackFlow value: $value")  // Add the log here
+            Log.d(TAG, "nBackFlow value: $value")
             value
         }
 

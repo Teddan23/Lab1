@@ -89,19 +89,18 @@ class GameVM(
     override val highscore: StateFlow<Int>
         get() = _highscore
 
-    // nBack is currently hardcoded
     private val _nBack = mutableStateOf(2)
     override val nBack: Int get() = _nBack.value
 
-    private var job: Job? = null  // coroutine job for the game event
-    private val _eventInterval = mutableStateOf(2000)      //2sekunder
+    private var job: Job? = null
+    private val _eventInterval = mutableStateOf(2000)                    //2sekunder
     override val eventInterval: Int get() = _eventInterval.value
 
-    private val _eventCount = mutableStateOf(10)  // Default antal events
+    private val _eventCount = mutableStateOf(10)
     override val eventCount: Int get() = _eventCount.value
 
-    private val nBackHelper = NBackHelper()  // Helper that generate the event array
-    private var VisualArray = emptyArray<Int>()  // Array with all events
+    private val nBackHelper = NBackHelper()                                     // Helper that generate the event array
+    private var VisualArray = emptyArray<Int>()
     private var AudioArray = emptyArray<Int>()
     private var VisualArrayPosition = -1
     private var AudioArrayPosition = -1
@@ -116,9 +115,6 @@ class GameVM(
     private var _visualGameMode = mutableStateOf(3)
     override val visualGameMode: Int get() = _visualGameMode.value
 
-    //private val _visualGameMode = mutableStateOf(VisualGameMode.ThreeXThree)
-    //override val visualGameMode: VisualGameMode get() = _visualGameMode.value
-
     private var tts: TextToSpeech? = null
 
     private var _visualButtonColor = mutableStateOf(Color.Gray)
@@ -127,7 +123,6 @@ class GameVM(
     override val audioButtonColor: State<Color> get() = _audioButtonColor
 
     override fun setGameType(gameType: GameType) {
-        // update the gametype in the gamestate
         _gameState.value = _gameState.value.copy(gameType = gameType)
     }
 
@@ -165,12 +160,10 @@ class GameVM(
 
 
     override fun startGame() {
-        job?.cancel()  // Cancel any existing game loop
+        job?.cancel()                                           // Cancel any existing game loop
 
         _score.value = 0
 
-
-        // Get the events from our C-model (returns IntArray, so we need to convert to Array<Int>)
             when(gameState.value.gameType){
                 GameType.Audio -> {
                     AudioArrayPosition = -1
@@ -189,30 +182,18 @@ class GameVM(
 
             }
 
-
-        //VisualArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
-        //Log.d("GameVM", "The following sequence was geSnerated: ${events.contentToString()}")
-        //AudioArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()
-
-
-
         job = viewModelScope.launch {
             when (gameState.value.gameType) {
                 GameType.Audio -> runAudioGame()
                 GameType.AudioVisual -> runAudioVisualGame()
                 GameType.Visual -> runVisualGame(VisualArray)
             }
-            // Todo: update the highscore
             updateHighScoreIfNeeded(_score.value)
         }
 
     }
 
     override fun checkMatch(gameButtonType: GameButtonType) {
-        /**
-         * Todo: This function should check if there is a match when the user presses a match button
-         * Make sure the user can only register a match once for each event.
-         */
 
         Log.d("GameVM", "Current score: ${_score.value}")
 
@@ -246,28 +227,25 @@ class GameVM(
 
 
     private suspend fun runAudioGame() {
-        // Todo: Make work for Basic grade
-
         for (value in AudioArray) {
 
             resetButtons()
             AudioArrayPosition++
-            // Spela upp ljudet med TTS för varje värde i AudioArray
-            speakOut(value)  // Detta spelar upp A, B osv.
-            _gameState.value = _gameState.value.copy(audioEventValue = value)
-            // Vänta lite mellan varje ljud, t.ex. 2 sekunder
+            speakOut(value)
+            _gameState.value = _gameState.value.copy(
+                audioEventValue = value,
+                eventCounter = AudioArrayPosition+1)
             delay(eventInterval.toLong())
         }
     }
 
     private suspend fun runVisualGame(events: Array<Int>){
-        // Todo: Replace this code for actual game code
-        //delay(eventInterval)
         for (value in events) {
-            //Log.d("GameVM", "Setting eventValue to $value")  // Lägg till denna logg
             resetButtons()
             VisualArrayPosition++
-            _gameState.value = _gameState.value.copy(visualEventValue = value)
+            _gameState.value = _gameState.value.copy(
+                visualEventValue = value,
+                eventCounter = VisualArrayPosition+1)
             delay(eventInterval.toLong())
         }
 
@@ -279,13 +257,15 @@ class GameVM(
     }
 
     private suspend fun runAudioVisualGame(){
-        // Todo: Make work for Higher grade
         for(value in VisualArray){
             resetButtons()
             VisualArrayPosition++
             AudioArrayPosition++
             speakOut(AudioArray[AudioArrayPosition])
-            _gameState.value = _gameState.value.copy(visualEventValue = value, audioEventValue = AudioArray[AudioArrayPosition])
+            _gameState.value = _gameState.value.copy(
+                visualEventValue = value,
+                audioEventValue = AudioArray[AudioArrayPosition],
+                eventCounter = VisualArrayPosition+1)
             delay(eventInterval.toLong())
         }
     }
@@ -318,7 +298,6 @@ class GameVM(
             24 -> "X"
             25 -> "Y"
             26 -> "Z"
-            // Lägg till fler regler om det finns fler värden
             else -> "Unknown"
         }
 
@@ -333,7 +312,6 @@ class GameVM(
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            // Ange språk för TTS (t.ex. engelska)
             tts?.setLanguage(Locale.US)
         } else {
             Log.e("GameVM", "TTS Initialization failed")
@@ -341,29 +319,13 @@ class GameVM(
     }
 
     fun updateHighScoreIfNeeded(newScore: Int) {
-        // Kolla om den nya poängen är högre än den sparade highscore
         if (newScore > _highscore.value) {
             _highscore.value = newScore
-            // Spara den nya highscore till DataStore
             viewModelScope.launch {
                 userPreferencesRepository.saveHighScore(newScore)
             }
         }
     }
-
-    /*fun loadSettings() {
-        viewModelScope.launch {
-            userPreferencesRepository.getUserSettings().collect { settings ->
-                // Sätt värden i ViewModel baserat på vad som finns sparat i datastore
-                _nBack.value = settings.nBackValue
-                _eventInterval.value = settings.eventInterval * 1000L // Omvandlar till millisekunder
-                _eventCount.value = settings.eventCount
-                _visualGameMode.value = settings.visualGameMode
-                _possibleAudioOutput.value = settings.possibleAudioOutput
-            }
-        }
-    }*/
-
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
@@ -378,9 +340,7 @@ class GameVM(
     }
 
     init {
-        // Code that runs during creation of the vm
         tts = TextToSpeech(context, this)
-        //loadSettings()
         viewModelScope.launch {
             userPreferencesRepository.highscore.collect {
                 _highscore.value = it
@@ -418,7 +378,6 @@ class GameVM(
     }
 }
 
-// Class with the different game types
 enum class GameType{
     Audio,
     Visual,
@@ -426,10 +385,10 @@ enum class GameType{
 }
 
 data class GameState(
-    // You can use this state to push values from the VM to your UI.
-    val gameType: GameType = GameType.Visual,  // Type of the game
-    val visualEventValue: Int = -1,  // The value of the array string
+    val gameType: GameType = GameType.Visual,
+    val visualEventValue: Int = -1,
     val audioEventValue: Int = -1,
+    val eventCounter: Int = 0
 )
 
 class FakeVM: GameViewModel{
@@ -449,7 +408,6 @@ class FakeVM: GameViewModel{
     override val eventInterval: Int get() = 1
     override var possibleAudioOutput: Int = 10
     override val visualGameMode: Int = 3
-    //override val visualGameMode: VisualGameMode get() = VisualGameMode.ThreeXThree
 
     override fun setGameType(gameType: GameType) {
     }

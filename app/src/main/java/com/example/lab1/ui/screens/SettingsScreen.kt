@@ -18,7 +18,6 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 @Composable
 fun SettingsScreen(vm: GameViewModel, navController: NavController) {
 
-    // Används för att hålla de nya värdena lokalt i skärmen
     var nBackValue by remember { mutableStateOf(vm.nBack) }
     var eventIntervalValue by remember { mutableStateOf((vm.eventInterval / 1000)) }
     var eventCountValue by remember { mutableStateOf(vm.eventCount) }
@@ -52,7 +51,6 @@ fun SettingsScreen(vm: GameViewModel, navController: NavController) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    // Visar och redigerar n-back värdet
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -72,7 +70,6 @@ fun SettingsScreen(vm: GameViewModel, navController: NavController) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Visar och redigerar Event Interval värdet
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -92,7 +89,6 @@ fun SettingsScreen(vm: GameViewModel, navController: NavController) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Visar och redigerar Event Count värdet
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -132,7 +128,6 @@ fun SettingsScreen(vm: GameViewModel, navController: NavController) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Max Letters (Antal bokstäver)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -146,16 +141,15 @@ fun SettingsScreen(vm: GameViewModel, navController: NavController) {
                             Text("$possibleAudioOutputValue", fontSize = 20.sp)
                             IconButton(onClick = { if (possibleAudioOutputValue < 26) possibleAudioOutputValue++ }) {
                                 Text("+", fontSize = 20.sp)
+
                             }
                         }
                     }
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // Save Changes-knapp
                     Button(
                         onClick = {
-                            // Uppdatera värden i GameVM
                             vm.updateNBack(nBackValue)
                             vm.updateEventInterval(eventIntervalValue * 1000)
                             vm.updateEventCount(eventCountValue)
@@ -165,7 +159,7 @@ fun SettingsScreen(vm: GameViewModel, navController: NavController) {
                             vm.saveSettings()
 
 
-                            navController.popBackStack()  // Gå tillbaka efter att ha sparat
+                            navController.popBackStack()
                         },
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     ) {

@@ -14,13 +14,13 @@ import mobappdev.example.nback_cimpl.data.UserPreferencesRepository
 fun NavGraph(navController: NavHostController, userPreferencesRepository: UserPreferencesRepository, gameVm: GameVM) {
     NavHost(navController, startDestination = Routes.HOME) {
         composable(Routes.HOME) {
-            HomeScreen(vm = gameVm, navController = navController) // Pass UserPreferencesRepository to GameVM
+            HomeScreen(vm = gameVm, navController = navController)
         }
         composable(Routes.GAME) {
-            GameScreen(vm = gameVm, navController = navController) // Pass UserPreferencesRepository to GameVM
+            GameScreen(vm = gameVm, navController = navController)
         }
         composable(Routes.SETTINGS) {
-            SettingsScreen(vm = gameVm, navController = navController) // Pass UserPreferencesRepository to GameVM
+            SettingsScreen(vm = gameVm, navController = navController)
         }
     }
 }

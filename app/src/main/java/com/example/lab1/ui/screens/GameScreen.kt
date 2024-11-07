@@ -19,6 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.lab1.GameButtonType
@@ -34,7 +35,6 @@ fun GameScreen(
     vm: GameViewModel,
     navController: NavController
 ) {
-    // Observera gameState som tidigare
     val gameState by vm.gameState.collectAsState()
     val score by vm.score.collectAsState()
     val visualGameMode by remember { mutableStateOf(vm.visualGameMode) }
@@ -64,17 +64,11 @@ fun GameScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Current visualEventValue: ${gameState.visualEventValue}",
+                        text = "${gameState.eventCounter}/${vm.eventCount}",
+                        fontSize = 30.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Text(
-                        text = "Current audioEventValue: ${gameState.audioEventValue}",
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    // NBackGrid använder LazyVerticalGrid istället för Column
                     if (gameState.gameType != GameType.Audio) {
                         NBackGrid(gameState = gameState, visualGameMode = visualGameMode)
                     }
@@ -131,19 +125,17 @@ fun GameScreen(
 
 @Composable
 fun NBackGrid(gameState: GameState, visualGameMode: Int) {
-    // Bestäm storleken på grid beroende på spelets visualGameMode
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(visualGameMode), // Ställ in antalet kolumner
+        columns = GridCells.Fixed(visualGameMode),
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        contentPadding = PaddingValues(8.dp), // Lägg till padding mellan gridcellerna
+        contentPadding = PaddingValues(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(visualGameMode * visualGameMode) { index ->
-            // Skicka vidare ID:t (index) och eventValue för varje cell
             GridCell(id = index + 1, eventValue = gameState.visualEventValue)
         }
     }
@@ -157,11 +149,10 @@ fun GridCell(
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .aspectRatio(1f) // Gör cellerna kvadratiska
+            .aspectRatio(1f)
             .background(if (id == eventValue) Color.Blue else Color.White)
             .padding(4.dp)
     ) {
-        // Cellinnehåll kan vara här, till exempel en text eller ikon
     }
 }
 

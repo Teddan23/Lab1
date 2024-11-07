@@ -48,7 +48,7 @@ fun HomeScreen(
     vm: GameViewModel,
     navController : NavController
 ) {
-    val highscore by vm.highscore.collectAsState()  // Highscore is its own StateFlow
+    val highscore by vm.highscore.collectAsState()
     val gameState by vm.gameState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -71,7 +71,6 @@ fun HomeScreen(
                 text = "High-Score = $highscore",
                 style = MaterialTheme.typography.headlineLarge
             )
-            // Todo: You'll probably want to change this "BOX" part of the composable
             Box(
                 modifier = Modifier.weight(1f),
                 contentAlignment = Alignment.Center
@@ -80,13 +79,6 @@ fun HomeScreen(
                     Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    if (gameState.visualEventValue != -1) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = "Current eventValue is: ${gameState.visualEventValue}",
-                            textAlign = TextAlign.Center
-                        )
-                    }
                     Button(
                         modifier = Modifier.padding(bottom = 16.dp),
                         onClick = {
@@ -115,7 +107,6 @@ fun HomeScreen(
                         Text(text = "Test both")
                     }
                     Button(
-                        //modifier = Modifier.padding(bottom = 23.dp),
                         onClick = {
                             navController.navigate(Routes.SETTINGS)
                         }) {
@@ -128,48 +119,6 @@ fun HomeScreen(
                 text = "Hello there! :3 (makka)",
                 style = MaterialTheme.typography.displaySmall
             )
-            /*Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(onClick = {
-                    // Todo: change this button behaviour
-                    scope.launch {
-                        snackBarHostState.showSnackbar(
-                            message = "Hey! you clicked the audio button"
-                        )
-                    }
-                }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.sound_on),
-                        contentDescription = "Sound",
-                        modifier = Modifier
-                            .height(48.dp)
-                            .aspectRatio(3f / 2f)
-                    )
-                }
-                Button(
-                    onClick = {
-                        // Todo: change this button behaviour
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
-                                message = "Hey! you clicked the visual button",
-                                duration = SnackbarDuration.Short
-                            )
-                        }
-                    }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.visual),
-                        contentDescription = "Visual",
-                        modifier = Modifier
-                            .height(48.dp)
-                            .aspectRatio(3f / 2f)
-                    )
-                }
-            }*/
         }
     }
 }
@@ -177,8 +126,8 @@ fun HomeScreen(
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    val fakeNavController = rememberNavController()  // Create a mock NavController
+    val fakeNavController = rememberNavController()
     Surface {
-        HomeScreen(FakeVM(), navController = fakeNavController)  // Pass FakeVM and mock NavController
+        HomeScreen(FakeVM(), navController = fakeNavController)
     }
 }
