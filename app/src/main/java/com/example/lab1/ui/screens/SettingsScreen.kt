@@ -23,7 +23,8 @@ fun SettingsScreen(vm: GameViewModel, navController: NavController) {
     var nBackValue by remember { mutableStateOf(vm.nBack) }
     var eventIntervalValue by remember { mutableStateOf((vm.eventInterval / 1000).toInt()) }
     var eventCountValue by remember { mutableStateOf(vm.eventCount) }
-    val gameState by vm.gameState.collectAsState()
+
+    var possibleAudioOutputValue by remember { mutableStateOf(vm.possibleAudioOutput) }
 
     var selectedVisualMode by remember { mutableStateOf(vm.gameState.value.visualGameMode) }
 
@@ -134,6 +135,26 @@ fun SettingsScreen(vm: GameViewModel, navController: NavController) {
                         Text("5x5")
                     }
 
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Max Letters (Antal bokstäver)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Max Letters:", fontSize = 20.sp)
+                        Row {
+                            IconButton(onClick = { if (possibleAudioOutputValue > 2) possibleAudioOutputValue-- }) {
+                                Text("-", fontSize = 20.sp)
+                            }
+                            Text("$possibleAudioOutputValue", fontSize = 20.sp)
+                            IconButton(onClick = { if (possibleAudioOutputValue < 26) possibleAudioOutputValue++ }) {
+                                Text("+", fontSize = 20.sp)
+                            }
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(32.dp))
 
                     // Save Changes-knapp
@@ -144,6 +165,7 @@ fun SettingsScreen(vm: GameViewModel, navController: NavController) {
                             vm.updateEventInterval(eventIntervalValue * 1000L)
                             vm.updateEventCount(eventCountValue)
                             vm.updateVisualGameMode(selectedVisualMode)
+                            vm.updatePossibleAudioOutput(possibleAudioOutputValue)
                             navController.popBackStack()  // Gå tillbaka efter att ha sparat
                         },
                         modifier = Modifier.align(Alignment.CenterHorizontally)
