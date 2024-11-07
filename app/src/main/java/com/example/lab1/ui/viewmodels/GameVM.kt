@@ -189,6 +189,7 @@ class GameVM(
                 GameType.Visual -> runVisualGame(VisualArray)
             }
             // Todo: update the highscore
+            updateHighScoreIfNeeded(_score.value)
         }
 
     }
@@ -322,6 +323,17 @@ class GameVM(
             tts?.setLanguage(Locale.US)
         } else {
             Log.e("GameVM", "TTS Initialization failed")
+        }
+    }
+
+    fun updateHighScoreIfNeeded(newScore: Int) {
+        // Kolla om den nya poängen är högre än den sparade highscore
+        if (newScore > _highscore.value) {
+            _highscore.value = newScore
+            // Spara den nya highscore till DataStore
+            viewModelScope.launch {
+                userPreferencesRepository.saveHighScore(newScore)
+            }
         }
     }
 
