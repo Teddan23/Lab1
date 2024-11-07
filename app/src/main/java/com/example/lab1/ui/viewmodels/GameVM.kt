@@ -23,6 +23,7 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.TextToSpeech.OnInitListener
 import androidx.compose.ui.graphics.Color
+import com.example.lab1.Routes
 import java.util.Locale
 
 /**
@@ -171,7 +172,10 @@ class GameVM(
                     VisualArray = nBackHelper.generateNBackString(eventCount, visualGameMode*visualGameMode, 30, nBack, 1).toList().toTypedArray()
                     AudioArray = nBackHelper.generateNBackString(eventCount, possibleAudioOutput, 30, nBack, 3).toList().toTypedArray()
                 }
+
             }
+
+
         //VisualArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
         //Log.d("GameVM", "The following sequence was geSnerated: ${events.contentToString()}")
         //AudioArray = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()
@@ -186,6 +190,7 @@ class GameVM(
             }
             // Todo: update the highscore
         }
+
     }
 
     override fun checkMatch(gameButtonType: GameButtonType) {
